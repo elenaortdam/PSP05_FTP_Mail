@@ -1,9 +1,11 @@
+import javax.mail.MessagingException;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class MenuTarea5 {
 
-	private void getMenu() {
+	private void getMenu() throws IOException, MessagingException {
 		int opcionSeleccionada = 0;
 		do {
 			BufferedReader entradaDatos = new BufferedReader(new InputStreamReader(System.in));
@@ -33,11 +35,10 @@ public class MenuTarea5 {
 					isValid = true;
 				} catch (Exception e) {
 					isValid = false;
-					System.out.printf("Ha introducido \"%s\". Introduzca una opción válida\n", opcionSeleccionada);
+					System.out.printf("Ha introducido \"%s\". Introduzca una opción válida\n",
+									  opcionSeleccionada);
 				}
 			} while (!isValid);
-
-//			System.out.printf("Introduce la opción de menú: %d\n", opcionSeleccionada);
 			switch (opcionSeleccionada) {
 				case 1:
 					System.out.println("SUBIR FICHEROS AL SERVIDOR");
@@ -46,7 +47,10 @@ public class MenuTarea5 {
 					ejercicio1.proceso();
 					break;
 				case 2:
-//				Ejercicio2.proceso();
+					System.out.println("EJERCICIO 2 - CONTROL DE LOG Y ENVÍO DE CORREO");
+					System.out.println("=============================================");
+					Ejercicio2 ejercicio2 = new Ejercicio2();
+					ejercicio2.proceso();
 					break;
 				case 3:
 					System.out.println("Ha escogido cerrar el programa");
@@ -57,7 +61,7 @@ public class MenuTarea5 {
 
 	}
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, MessagingException {
 		MenuTarea5 menuTarea5 = new MenuTarea5();
 		menuTarea5.getMenu();
 	}

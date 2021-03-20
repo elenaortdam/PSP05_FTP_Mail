@@ -101,11 +101,21 @@ public class Ejercicio1 {
 				}
 				System.out.println(stringBuilder);
 			}
+			disconnect();
 
 		} catch (Exception e) {
 			System.out.printf("Ha ocurrido error. Error: %s. Inténtelo de nuevo",
 							  e.getLocalizedMessage());
 		}
+	}
+
+	private void disconnect() throws IOException {
+		if (client.logout()) {
+			System.out.println("Usuario desconectado.");
+		} else {
+			System.out.println("Error al desconectar el usuario.");
+		}
+		this.client.disconnect();
 	}
 
 	private boolean login(String user, String password) {
