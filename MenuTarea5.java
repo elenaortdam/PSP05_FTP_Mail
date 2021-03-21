@@ -54,6 +54,7 @@ public class MenuTarea5 {
 					break;
 				case 3:
 					System.out.println("Ha escogido cerrar el programa");
+					break;
 				default:
 					System.out.println("La opción seleccionada no es válida");
 			}
