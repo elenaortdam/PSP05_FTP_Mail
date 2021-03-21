@@ -3,7 +3,10 @@ import org.apache.commons.net.ftp.FTPClient;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.*;
+import java.io.Console;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -17,28 +20,28 @@ public class Ejercicio2 {
 
 	public void proceso() {
 		try {
-			BufferedReader entradaDatos = new BufferedReader(new InputStreamReader(System.in));
+//			BufferedReader entradaDatos = new BufferedReader(new InputStreamReader(System.in));
 
 			String username;
-//		Console console = System.console();
+			Console console = System.console();
 			do {
-//			if (console == null) {
-//				throw new NullPointerException("Fallo al escribir por consola");
-//			}
-//			username = console.readLine("Nombre de usuario: ");
-				System.out.print("Nombre de usuario: ");
-				username = entradaDatos.readLine();
+				if (console == null) {
+					throw new NullPointerException("Fallo al escribir por consola");
+				}
+				username = console.readLine("Introduce Nombre de usuario: ");
+//				System.out.print("Nombre de usuario: ");
+//				username = entradaDatos.readLine();
 				if (username.isEmpty()) {
 					throw new IllegalArgumentException("El campo no puede estar vacío");
 				}
 				if (!username.trim().equals("*")) {
-//				char[] passwordArray = console.readPassword("Contraseña: ");
-//				if (passwordArray == null) {
-//					throw new IllegalArgumentException("El campo no puede ser nulo");
-//				}
-					System.out.print("Contraseña: ");
-//				String password = new String(passwordArray);
-					String password = entradaDatos.readLine();
+					char[] passwordArray = console.readPassword("Contraseña: ");
+					if (passwordArray == null) {
+						throw new IllegalArgumentException("El campo no puede ser nulo");
+					}
+//					System.out.print("Contraseña: ");
+					String password = new String(passwordArray);
+//					String password = entradaDatos.readLine();
 					writeLog(username, password);
 				}
 
@@ -52,8 +55,8 @@ public class Ejercicio2 {
 			do {
 				try {
 					System.out.print("Cuenta de usuario: ");
-//		String email = console.readLine("Cuenta de usuario: ");
-					email = entradaDatos.readLine();
+					email = console.readLine("Cuenta de usuario: ");
+//					email = entradaDatos.readLine();
 					isValid = checkEmail(email);
 					tries++;
 
@@ -64,16 +67,16 @@ public class Ejercicio2 {
 			} while (!isValid && tries < 2);
 			StringBuilder body = new StringBuilder();
 
-			System.out.print("Introduce la clave: ");
-			String password = entradaDatos.readLine();
-			if (password == null || password.isEmpty()) {
-				System.err.println("La contraseña introducida no es válida");
+//			System.out.print("Introduce la clave: ");
+//			String password = entradaDatos.readLine();
+//			if (password == null || password.isEmpty()) {
+//				System.err.println("La contraseña introducida no es válida");
+//			}
+			char[] passwordArray = console.readPassword("Introduce la clave: ");
+			if (passwordArray == null) {
+				throw new IllegalArgumentException("El campo no puede ser nulo");
 			}
-			//				char[] passwordArray = console.readPassword("Contraseña: ");
-//				if (passwordArray == null) {
-//					throw new IllegalArgumentException("El campo no puede ser nulo");
-//				}
-//				String password = new String(passwordArray);
+			String password = new String(passwordArray);
 
 			body.append("Conexiones realizadas durante la ejecución del Ejercicio 2: ")
 				.append(this.usersLog.size())
@@ -105,9 +108,10 @@ public class Ejercicio2 {
 
 	private void writeLog(String user, String password) throws IOException {
 		if (!login(user, password)) {
-			System.out.println("\t\tUSUARIO Y/O CLAVE INCORRECTOS...");
+			System.out.println("\t\tLogin incorrecto...");
 			return;
 		}
+		System.out.println("\t\tNos conectamos a: localhost");
 		//Nos quedamos con el número
 		int userId;
 		try {
