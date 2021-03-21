@@ -3,10 +3,7 @@ import org.apache.commons.net.ftp.FTPClient;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.Console;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -142,16 +139,16 @@ public class Ejercicio2 {
 		logFile.flush();
 		logFile.close();
 
-//		client.changeWorkingDirectory("LOG");
-//		String remoteFile = String.format("%s/%s", client.printWorkingDirectory(), fileName);
-//		InputStream inputStream = new FileInputStream(file);
-//		client.setFileTransferMode(FTPClient.BINARY_FILE_TYPE);
-//		client.enterLocalPassiveMode();
-//		boolean done = client.storeFile(remoteFile, inputStream);
-//		inputStream.close();
-//		if (!done) {
-//			System.out.println("\tHa ocurrido un error al actualizar el LOG.txt");
-//		}
+		client.changeWorkingDirectory("LOG");
+		String remoteFile = String.format("%s/%s", client.printWorkingDirectory(), fileName);
+		InputStream inputStream = new FileInputStream(file);
+		client.setFileTransferMode(FTPClient.BINARY_FILE_TYPE);
+		client.enterLocalPassiveMode();
+		boolean done = client.storeFile(remoteFile, inputStream);
+		inputStream.close();
+		if (!done) {
+			System.out.println("\tHa ocurrido un error al actualizar el LOG.txt");
+		}
 
 	}
 
