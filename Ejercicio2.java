@@ -1,4 +1,5 @@
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -15,7 +16,7 @@ public class Ejercicio2 {
 	private FTPClient client;
 	private final List<String> usersLog = new ArrayList<>();
 
-	public void proceso() {
+	public void proceso() throws IOException {
 		try {
 			BufferedReader entradaDatos = new BufferedReader(new InputStreamReader(System.in));
 
@@ -85,9 +86,10 @@ public class Ejercicio2 {
 			}
 			sendEmail(email, email, password, body.toString());
 			System.out.println("Enviado!");
-			this.client.disconnect();
 		} catch (Exception e) {
 			System.err.println(e.getLocalizedMessage());
+		} finally {
+			this.client.disconnect();
 		}
 	}
 
@@ -117,37 +119,45 @@ public class Ejercicio2 {
 			return;
 		}
 		usersLog.add(user);
-
-		String systemDrive = System.getenv("SystemDrive");
-		String fullPath = String.format("%s/MiServerFTP/%s/%s", systemDrive, user, "LOG");
-		FileWriter logFile;
 		String fileName = "LOG.txt";
-		File file = new File(fullPath + File.separator + fileName);
-		if (file.exists()) {
-			logFile = new FileWriter(file, true);
-		} else {
+		String systemDrive = System.getProperty("user.dir");
+		String directoryName = systemDrive + File.separator + user;
+		String pathname = directoryName + File.separator + fileName;
+		File directory = new File(directoryName);
+		if (!directory.exists()) {
+			if (!directory.mkdir()) {
+				System.err.println("Ha ocurrido un error creando el directorio del usuario");
+			}
+		}
+		File file = new File(pathname);
+		if (!file.exists()) {
 			if (!file.createNewFile()) {
 				System.err.println("Ha ocurrido un error creando el archivo LOG.txt");
 			}
-			logFile = new FileWriter(file);
-			logFile.write(String.format("Conexiones realizadas por el Usuario %d.", userId));
-			logFile.flush();
 		}
-		String date = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("EEE MMM d HH:mm:ss zzz uuuu"));
-		logFile.write("\n" + date);
-		logFile.flush();
-		logFile.close();
-
-//		client.changeWorkingDirectory("LOG");
-//		String remoteFile = String.format("%s/%s", client.printWorkingDirectory(), fileName);
-//		InputStream inputStream = new FileInputStream(file);
-//		client.setFileTransferMode(FTPClient.BINARY_FILE_TYPE);
-//		client.enterLocalPassiveMode();
-//		boolean done = client.storeFile(remoteFile, inputStream);
-//		inputStream.close();
-//		if (!done) {
-//			System.out.println("\tHa ocurrido un error al actualizar el LOG.txt");
-//		}
+		FileOutputStream out = new FileOutputStream(file);
+		client.changeWorkingDirectory("LOG");
+		FTPFile[] ftpFiles = client.listFiles();
+		if (ftpFiles.length <= 0) {
+			out.write(String.format("Conexiones realizadas por el Usuario %d.\n", userId).getBytes());
+			out.flush();
+		} else {
+			client.retrieveFile("LOG.txt", out);
+		}
+		String date = ZonedDateTime.now().format(DateTimeFormatter.ofPattern("EEE MMM d HH:mm:ss zzz uuuu")) + "\n";
+		out.write(date.getBytes());
+		out.flush();
+		String remoteFile = String.format("%s/%s", client.printWorkingDirectory(), fileName);
+		InputStream inputStream = new FileInputStream(file);
+		client.setFileTransferMode(FTPClient.BINARY_FILE_TYPE);
+		client.enterLocalPassiveMode();
+		out.close();
+		boolean done = client.storeFile(remoteFile, inputStream);
+		System.out.print(client.getReplyString());
+		inputStream.close();
+		if (!done) {
+			System.out.println("\tHa ocurrido un error al actualizar el LOG.txt");
+		}
 
 	}
 
@@ -165,7 +175,8 @@ public class Ejercicio2 {
 		return true;
 	}
 
-	private void sendEmail(String from, String to, String password, String body) throws MessagingException {
+	private void sendEmail(String from, String to, String password, String body) throws
+																				 MessagingException {
 
 		Properties props = new Properties();
 		// Nombre del host de correo, es smtp.gmail.com
@@ -187,12 +198,9 @@ public class Ejercicio2 {
 											  });
 		// Para obtener un log de salida más extenso
 		session.setDebug(false);
-
 		MimeMessage message = new MimeMessage(session);
-
 		// Quien envia el correo
 		message.setFrom(new InternetAddress(from));
-
 		// A quien va dirigido
 		message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
 
@@ -201,5 +209,5 @@ public class Ejercicio2 {
 
 		Transport.send(message);
 	}
-
 }
+
